@@ -129,8 +129,6 @@ class PizzaInput(BaseModel):
 
 mcp = FastMCP(
     name="pizzaz-python",
-    sse_path="/mcp",
-    message_path="/mcp/messages",
     stateless_http=True,
 )
 
