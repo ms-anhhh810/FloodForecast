@@ -12,10 +12,14 @@ function buildInputs() {
   );
 }
 
-const toFs = (abs: string) => "/@fs" + abs.replace(/\\/g, "/");
+const toFs = (abs: string) => "/@fs/" + abs.replace(/\\/g, "/");
 
-const toServerRoot = (abs: string) =>
-  "./" + path.posix.relative(process.cwd(), abs).replace(/\\/g, "/");
+const toServerRoot = (abs: string) => {
+  const rel = path.relative(process.cwd(), abs).replace(/\\/g, "/");
+  // If it's not really relative (different drive or absolute), fall back to fs URL
+  if (!rel || rel.startsWith("..") || path.isAbsolute(rel)) return toFs(abs);
+  return "./" + rel;
+};
 
 function multiEntryDevEndpoints(options: {
   entries: Record<string, string>;
