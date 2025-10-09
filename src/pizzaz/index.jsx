@@ -255,7 +255,7 @@ export default function App() {
       {displayMode === "fullscreen" && (
         <div className="hidden antialiased md:flex absolute inset-x-0 bottom-2 z-30 justify-center pointer-events-none">
           <div className="flex gap-3 pointer-events-auto">
-            {["Open now", "Top rated", "Vegeterian friendly"].map((label) => (
+            {["Open now", "Top rated", "Vegetarian friendly"].map((label) => (
               <button
                 key={label}
                 className="rounded-full font-base bg-white ring ring-black/10 text-black px-4 py-1.5 text-sm hover:bg-[#f7f7f7] cursor-pointer"
