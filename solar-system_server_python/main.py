@@ -92,8 +92,6 @@ class SolarInput(BaseModel):
 
 mcp = FastMCP(
     name="solar-system-python",
-    sse_path="/mcp",
-    message_path="/mcp/messages",
     stateless_http=True,
 )
 
