@@ -122,6 +122,15 @@ You will get a public URL that you can use to add your local server to ChatGPT i
 
 For example: `https://<custom_endpoint>.ngrok-free.app/mcp`
 
+Once you add a connector, you can use it in ChatGPT conversations.
+
+You can add your app to the conversation context by selecting it in the "More" options.
+
+![more-chatgpt](https://github.com/user-attachments/assets/26852b36-7f9e-4f48-a515-aebd87173399)
+
+You can then invoke tools by asking something related. For example, for the Pizzaz app, you can ask "What are the best pizzas in town?".
+
+
 ## Next steps
 
 - Customize the widget data: edit the handlers in `pizzaz_server_node/src`, `pizzaz_server_python/main.py`, or the solar system server to fetch data from your systems.
