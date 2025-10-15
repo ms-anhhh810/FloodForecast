@@ -26,7 +26,7 @@ export default function FullscreenViewer({ album }) {
           <FilmStrip album={album} selectedIndex={index} onSelect={setIndex} />
         </div>
         {/* Main photo */}
-        <div className="flex-1 min-w-0 px-40 py-10 relative flex items-center justify-center flex-auto">
+        <div className="flex-1 min-w-0 px-40 py-10 relative flex items-center justify-center">
           <div className="relative w-full h-full">
             {photo ? (
               <img

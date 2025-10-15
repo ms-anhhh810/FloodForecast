@@ -242,7 +242,7 @@ export default function App() {
         >
           <div
             ref={mapRef}
-            className="w-full h-full relative absolute bottom-0 left-0 right-0"
+            className="w-full h-full absolute bottom-0 left-0 right-0"
             style={{
               maxHeight,
               height: displayMode === "fullscreen" ? maxHeight : undefined,

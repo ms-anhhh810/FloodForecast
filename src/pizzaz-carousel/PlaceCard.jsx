@@ -12,7 +12,7 @@ export default function PlaceCard({ place }) {
           className="w-full aspect-square rounded-2xl object-cover ring ring-black/5 shadow-[0px_2px_6px_rgba(0,0,0,0.06)]"
         />
       </div>
-      <div className="mt-3 flex flex-col flex-1 flex-auto">
+      <div className="mt-3 flex flex-col flex-1">
         <div className="text-base font-medium truncate line-clamp-1">{place.name}</div>
         <div className="text-xs mt-1 text-black/60 flex items-center gap-1">
           <Star className="h-3 w-3" aria-hidden="true" />
