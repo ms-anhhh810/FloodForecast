@@ -310,4 +310,4 @@ except Exception:  # pragma: no cover - middleware is optional
 if __name__ == "__main__":
     import uvicorn
 
-    uvicorn.run("solar-system_server_python.main:app", host="0.0.0.0", port=8000)
+    uvicorn.run("main:app", host="0.0.0.0", port=8000)
