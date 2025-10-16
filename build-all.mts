@@ -21,7 +21,6 @@ const targets: string[] = [
   "pizzaz-carousel",
   "pizzaz-list",
   "pizzaz-albums",
-  "pizzaz-video",
 ];
 const builtNames: string[] = [];
 
@@ -143,8 +142,6 @@ const outputs = fs
   .map((f) => path.join("assets", f))
   .filter((p) => fs.existsSync(p));
 
-const renamed = [];
-
 const h = crypto
   .createHash("sha256")
   .update(pkg.version, "utf8")
@@ -159,38 +156,35 @@ for (const out of outputs) {
   const newName = path.join(dir, `${base}-${h}${ext}`);
 
   fs.renameSync(out, newName);
-  renamed.push({ old: out, neu: newName });
   console.log(`${out} -> ${newName}`);
 }
 console.groupEnd();
 
 console.log("new hash: ", h);
 
+const defaultBaseUrl = "http://localhost:4444";
+const baseUrlCandidate = process.env.BASE_URL?.trim() ?? "";
+const baseUrlRaw = baseUrlCandidate.length > 0 ? baseUrlCandidate : defaultBaseUrl;
+const normalizedBaseUrl = baseUrlRaw.replace(/\/+$/, "") || defaultBaseUrl;
+console.log(`Using BASE_URL ${normalizedBaseUrl} for generated HTML`);
+
 for (const name of builtNames) {
   const dir = outDir;
-  const htmlPath = path.join(dir, `${name}-${h}.html`);
-  const cssPath = path.join(dir, `${name}-${h}.css`);
-  const jsPath = path.join(dir, `${name}-${h}.js`);
-
-  const css = fs.existsSync(cssPath)
-    ? fs.readFileSync(cssPath, { encoding: "utf8" })
-    : "";
-  const js = fs.existsSync(jsPath)
-    ? fs.readFileSync(jsPath, { encoding: "utf8" })
-    : "";
-
-  const cssBlock = css ? `\n  <style>\n${css}\n  </style>\n` : "";
-  const jsBlock = js ? `\n  <script type="module">\n${js}\n  </script>` : "";
-
-  const html = [
-    "<!doctype html>",
-    "<html>",
-    `<head>${cssBlock}</head>`,
-    "<body>",
-    `  <div id="${name}-root"></div>${jsBlock}`,
-    "</body>",
-    "</html>",
-  ].join("\n");
-  fs.writeFileSync(htmlPath, html, { encoding: "utf8" });
-  console.log(`${htmlPath} (generated)`);
+  const hashedHtmlPath = path.join(dir, `${name}-${h}.html`);
+  const liveHtmlPath = path.join(dir, `${name}.html`);
+  const html = `<!doctype html>
+<html>
+<head>
+  <script type="module" src="${normalizedBaseUrl}/${name}.js"></script>
+  <link rel="stylesheet" href="${normalizedBaseUrl}/${name}.css">
+</head>
+<body>
+  <div id="${name}-root"></div>
+</body>
+</html>
+`;
+  fs.writeFileSync(hashedHtmlPath, html, { encoding: "utf8" });
+  fs.writeFileSync(liveHtmlPath, html, { encoding: "utf8" });
+  console.log(`${hashedHtmlPath} (generated live HTML)`);
+  console.log(`${liveHtmlPath} (generated live HTML)`);
 }
