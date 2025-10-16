@@ -1,5 +1,11 @@
-import { createServer, type IncomingMessage, type ServerResponse } from "node:http";
-import { URL } from "node:url";
+import {
+  createServer,
+  type IncomingMessage,
+  type ServerResponse,
+} from "node:http";
+import fs from "node:fs";
+import path from "node:path";
+import { URL, fileURLToPath } from "node:url";
 
 import { Server } from "@modelcontextprotocol/sdk/server/index.js";
 import { SSEServerTransport } from "@modelcontextprotocol/sdk/server/sse.js";
@@ -16,7 +22,7 @@ import {
   type ReadResourceRequest,
   type Resource,
   type ResourceTemplate,
-  type Tool
+  type Tool,
 } from "@modelcontextprotocol/sdk/types.js";
 import { z } from "zod";
 
@@ -30,13 +36,51 @@ type PizzazWidget = {
   responseText: string;
 };
 
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const ROOT_DIR = path.resolve(__dirname, "..", "..");
+const ASSETS_DIR = path.resolve(ROOT_DIR, "assets");
+
+function readWidgetHtml(componentName: string): string {
+  if (!fs.existsSync(ASSETS_DIR)) {
+    throw new Error(
+      `Widget assets not found. Expected directory ${ASSETS_DIR}. Run "pnpm run build" before starting the server.`
+    );
+  }
+
+  const directPath = path.join(ASSETS_DIR, `${componentName}.html`);
+  let htmlContents: string | null = null;
+
+  if (fs.existsSync(directPath)) {
+    htmlContents = fs.readFileSync(directPath, "utf8");
+  } else {
+    const candidates = fs
+      .readdirSync(ASSETS_DIR)
+      .filter(
+        (file) => file.startsWith(`${componentName}-`) && file.endsWith(".html")
+      )
+      .sort();
+    const fallback = candidates[candidates.length - 1];
+    if (fallback) {
+      htmlContents = fs.readFileSync(path.join(ASSETS_DIR, fallback), "utf8");
+    }
+  }
+
+  if (!htmlContents) {
+    throw new Error(
+      `Widget HTML for "${componentName}" not found in ${ASSETS_DIR}. Run "pnpm run build" to generate the assets.`
+    );
+  }
+
+  return htmlContents;
+}
+
 function widgetMeta(widget: PizzazWidget) {
   return {
     "openai/outputTemplate": widget.templateUri,
     "openai/toolInvocation/invoking": widget.invoking,
     "openai/toolInvocation/invoked": widget.invoked,
     "openai/widgetAccessible": true,
-    "openai/resultCanProduceWidget": true
+    "openai/resultCanProduceWidget": true,
   } as const;
 }
 
@@ -47,12 +91,8 @@ const widgets: PizzazWidget[] = [
     templateUri: "ui://widget/pizza-map.html",
     invoking: "Hand-tossing a map",
     invoked: "Served a fresh map",
-    html: `
-<div id="pizzaz-root"></div>
-<link rel="stylesheet" href="https://persistent.oaistatic.com/ecosystem-built-assets/pizzaz-0038.css">
-<script type="module" src="https://persistent.oaistatic.com/ecosystem-built-assets/pizzaz-0038.js"></script>
-    `.trim(),
-    responseText: "Rendered a pizza map!"
+    html: readWidgetHtml("pizzaz"),
+    responseText: "Rendered a pizza map!",
   },
   {
     id: "pizza-carousel",
@@ -60,12 +100,8 @@ const widgets: PizzazWidget[] = [
     templateUri: "ui://widget/pizza-carousel.html",
     invoking: "Carousel some spots",
     invoked: "Served a fresh carousel",
-    html: `
-<div id="pizzaz-carousel-root"></div>
-<link rel="stylesheet" href="https://persistent.oaistatic.com/ecosystem-built-assets/pizzaz-carousel-0038.css">
-<script type="module" src="https://persistent.oaistatic.com/ecosystem-built-assets/pizzaz-carousel-0038.js"></script>
-    `.trim(),
-    responseText: "Rendered a pizza carousel!"
+    html: readWidgetHtml("pizzaz-carousel"),
+    responseText: "Rendered a pizza carousel!",
   },
   {
     id: "pizza-albums",
@@ -73,12 +109,8 @@ const widgets: PizzazWidget[] = [
     templateUri: "ui://widget/pizza-albums.html",
     invoking: "Hand-tossing an album",
     invoked: "Served a fresh album",
-    html: `
-<div id="pizzaz-albums-root"></div>
-<link rel="stylesheet" href="https://persistent.oaistatic.com/ecosystem-built-assets/pizzaz-albums-0038.css">
-<script type="module" src="https://persistent.oaistatic.com/ecosystem-built-assets/pizzaz-albums-0038.js"></script>
-    `.trim(),
-    responseText: "Rendered a pizza album!"
+    html: readWidgetHtml("pizzaz-albums"),
+    responseText: "Rendered a pizza album!",
   },
   {
     id: "pizza-list",
@@ -86,12 +118,8 @@ const widgets: PizzazWidget[] = [
     templateUri: "ui://widget/pizza-list.html",
     invoking: "Hand-tossing a list",
     invoked: "Served a fresh list",
-    html: `
-<div id="pizzaz-list-root"></div>
-<link rel="stylesheet" href="https://persistent.oaistatic.com/ecosystem-built-assets/pizzaz-list-0038.css">
-<script type="module" src="https://persistent.oaistatic.com/ecosystem-built-assets/pizzaz-list-0038.js"></script>
-    `.trim(),
-    responseText: "Rendered a pizza list!"
+    html: readWidgetHtml("pizzaz-list"),
+    responseText: "Rendered a pizza list!",
   },
   {
     id: "pizza-video",
@@ -99,13 +127,9 @@ const widgets: PizzazWidget[] = [
     templateUri: "ui://widget/pizza-video.html",
     invoking: "Hand-tossing a video",
     invoked: "Served a fresh video",
-    html: `
-<div id="pizzaz-video-root"></div>
-<link rel="stylesheet" href="https://persistent.oaistatic.com/ecosystem-built-assets/pizzaz-video-0038.css">
-<script type="module" src="https://persistent.oaistatic.com/ecosystem-built-assets/pizzaz-video-0038.js"></script>
-    `.trim(),
-    responseText: "Rendered a pizza video!"
-  }
+    html: readWidgetHtml("pizzaz-video"),
+    responseText: "Rendered a pizza video!",
+  },
 ];
 
 const widgetsById = new Map<string, PizzazWidget>();
@@ -121,15 +145,15 @@ const toolInputSchema = {
   properties: {
     pizzaTopping: {
       type: "string",
-      description: "Topping to mention when rendering the widget."
-    }
+      description: "Topping to mention when rendering the widget.",
+    },
   },
   required: ["pizzaTopping"],
-  additionalProperties: false
+  additionalProperties: false,
 } as const;
 
 const toolInputParser = z.object({
-  pizzaTopping: z.string()
+  pizzaTopping: z.string(),
 });
 
 const tools: Tool[] = widgets.map((widget) => ({
@@ -137,7 +161,7 @@ const tools: Tool[] = widgets.map((widget) => ({
   description: widget.title,
   inputSchema: toolInputSchema,
   title: widget.title,
-  _meta: widgetMeta(widget)
+  _meta: widgetMeta(widget),
 }));
 
 const resources: Resource[] = widgets.map((widget) => ({
@@ -145,7 +169,7 @@ const resources: Resource[] = widgets.map((widget) => ({
   name: widget.title,
   description: `${widget.title} widget markup`,
   mimeType: "text/html+skybridge",
-  _meta: widgetMeta(widget)
+  _meta: widgetMeta(widget),
 }));
 
 const resourceTemplates: ResourceTemplate[] = widgets.map((widget) => ({
@@ -153,76 +177,91 @@ const resourceTemplates: ResourceTemplate[] = widgets.map((widget) => ({
   name: widget.title,
   description: `${widget.title} widget markup`,
   mimeType: "text/html+skybridge",
-  _meta: widgetMeta(widget)
+  _meta: widgetMeta(widget),
 }));
 
 function createPizzazServer(): Server {
   const server = new Server(
     {
       name: "pizzaz-node",
-      version: "0.1.0"
+      version: "0.1.0",
     },
     {
       capabilities: {
         resources: {},
-        tools: {}
-      }
+        tools: {},
+      },
     }
   );
 
-  server.setRequestHandler(ListResourcesRequestSchema, async (_request: ListResourcesRequest) => ({
-    resources
-  }));
+  server.setRequestHandler(
+    ListResourcesRequestSchema,
+    async (_request: ListResourcesRequest) => ({
+      resources,
+    })
+  );
 
-  server.setRequestHandler(ReadResourceRequestSchema, async (request: ReadResourceRequest) => {
-    const widget = widgetsByUri.get(request.params.uri);
+  server.setRequestHandler(
+    ReadResourceRequestSchema,
+    async (request: ReadResourceRequest) => {
+      const widget = widgetsByUri.get(request.params.uri);
 
-    if (!widget) {
-      throw new Error(`Unknown resource: ${request.params.uri}`);
+      if (!widget) {
+        throw new Error(`Unknown resource: ${request.params.uri}`);
+      }
+
+      return {
+        contents: [
+          {
+            uri: widget.templateUri,
+            mimeType: "text/html+skybridge",
+            text: widget.html,
+            _meta: widgetMeta(widget),
+          },
+        ],
+      };
     }
+  );
 
-    return {
-      contents: [
-        {
-          uri: widget.templateUri,
-          mimeType: "text/html+skybridge",
-          text: widget.html,
-          _meta: widgetMeta(widget)
-        }
-      ]
-    };
-  });
+  server.setRequestHandler(
+    ListResourceTemplatesRequestSchema,
+    async (_request: ListResourceTemplatesRequest) => ({
+      resourceTemplates,
+    })
+  );
 
-  server.setRequestHandler(ListResourceTemplatesRequestSchema, async (_request: ListResourceTemplatesRequest) => ({
-    resourceTemplates
-  }));
+  server.setRequestHandler(
+    ListToolsRequestSchema,
+    async (_request: ListToolsRequest) => ({
+      tools,
+    })
+  );
 
-  server.setRequestHandler(ListToolsRequestSchema, async (_request: ListToolsRequest) => ({
-    tools
-  }));
+  server.setRequestHandler(
+    CallToolRequestSchema,
+    async (request: CallToolRequest) => {
+      const widget = widgetsById.get(request.params.name);
 
-  server.setRequestHandler(CallToolRequestSchema, async (request: CallToolRequest) => {
-    const widget = widgetsById.get(request.params.name);
+      if (!widget) {
+        throw new Error(`Unknown tool: ${request.params.name}`);
+      }
 
-    if (!widget) {
-      throw new Error(`Unknown tool: ${request.params.name}`);
+      const args = toolInputParser.parse(request.params.arguments ?? {});
+
+      return {
+        content: [
+          {
+            type: "text",
+            text: widget.responseText,
+          },
+        ],
+        structuredContent: {
+          pizzaTopping: args.pizzaTopping,
+        },
+        _meta: widgetMeta(widget),
+      };
     }
-
-    const args = toolInputParser.parse(request.params.arguments ?? {});
-
-    return {
-      content: [
-        {
-          type: "text",
-          text: widget.responseText
-        }
-      ],
-      structuredContent: {
-        pizzaTopping: args.pizzaTopping
-      },
-      _meta: widgetMeta(widget)
-    };
-  });
+  );
 
   return server;
 }
@@ -299,36 +338,41 @@ async function handlePostMessage(
 const portEnv = Number(process.env.PORT ?? 8000);
 const port = Number.isFinite(portEnv) ? portEnv : 8000;
 
-const httpServer = createServer(async (req: IncomingMessage, res: ServerResponse) => {
-  if (!req.url) {
-    res.writeHead(400).end("Missing URL");
-    return;
+const httpServer = createServer(
+  async (req: IncomingMessage, res: ServerResponse) => {
+    if (!req.url) {
+      res.writeHead(400).end("Missing URL");
+      return;
+    }
+
+    const url = new URL(req.url, `http://${req.headers.host ?? "localhost"}`);
+
+    if (
+      req.method === "OPTIONS" &&
+      (url.pathname === ssePath || url.pathname === postPath)
+    ) {
+      res.writeHead(204, {
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+        "Access-Control-Allow-Headers": "content-type",
+      });
+      res.end();
+      return;
+    }
+
+    if (req.method === "GET" && url.pathname === ssePath) {
+      await handleSseRequest(res);
+      return;
+    }
+
+    if (req.method === "POST" && url.pathname === postPath) {
+      await handlePostMessage(req, res, url);
+      return;
+    }
+
+    res.writeHead(404).end("Not Found");
   }
-
-  const url = new URL(req.url, `http://${req.headers.host ?? "localhost"}`);
-
-  if (req.method === "OPTIONS" && (url.pathname === ssePath || url.pathname === postPath)) {
-    res.writeHead(204, {
-      "Access-Control-Allow-Origin": "*",
-      "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
-      "Access-Control-Allow-Headers": "content-type"
-    });
-    res.end();
-    return;
-  }
-
-  if (req.method === "GET" && url.pathname === ssePath) {
-    await handleSseRequest(res);
-    return;
-  }
-
-  if (req.method === "POST" && url.pathname === postPath) {
-    await handlePostMessage(req, res, url);
-    return;
-  }
-
-  res.writeHead(404).end("Not Found");
-});
+);
 
 httpServer.on("clientError", (err: Error, socket) => {
   console.error("HTTP client error", err);
@@ -338,5 +382,7 @@ httpServer.on("clientError", (err: Error, socket) => {
 httpServer.listen(port, () => {
   console.log(`Pizzaz MCP server listening on http://localhost:${port}`);
   console.log(`  SSE stream: GET http://localhost:${port}${ssePath}`);
-  console.log(`  Message post endpoint: POST http://localhost:${port}${postPath}?sessionId=...`);
+  console.log(
+    `  Message post endpoint: POST http://localhost:${port}${postPath}?sessionId=...`
+  );
 });

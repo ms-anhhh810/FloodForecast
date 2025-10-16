@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from functools import lru_cache
+from pathlib import Path
 from typing import Any, Dict, List
 
 import mcp.types as types
@@ -56,19 +58,32 @@ class SolarWidget:
     response_text: str
 
 
+ASSETS_DIR = Path(__file__).resolve().parent.parent / "assets"
+
+
+@lru_cache(maxsize=None)
+def _load_widget_html(component_name: str) -> str:
+    html_path = ASSETS_DIR / f"{component_name}.html"
+    if html_path.exists():
+        return html_path.read_text(encoding="utf8")
+
+    fallback_candidates = sorted(ASSETS_DIR.glob(f"{component_name}-*.html"))
+    if fallback_candidates:
+        return fallback_candidates[-1].read_text(encoding="utf8")
+
+    raise FileNotFoundError(
+        f'Widget HTML for "{component_name}" not found in {ASSETS_DIR}. '
+        "Run `pnpm run build` to generate the assets before starting the server."
+    )
+
+
 WIDGET = SolarWidget(
     identifier="solar-system",
     title="Explore the Solar System",
     template_uri="ui://widget/solar-system.html",
     invoking="Charting the solar system",
     invoked="Solar system ready",
-    html=(
-        "<div id=\"solar-system-root\"></div>\n"
-        "<link rel=\"stylesheet\" href=\"https://persistent.oaistatic.com/"
-        "ecosystem-built-assets/solar-system-0038.css\">\n"
-        "<script type=\"module\" src=\"https://persistent.oaistatic.com/"
-        "ecosystem-built-assets/solar-system-0038.js\"></script>"
-    ),
+    html=_load_widget_html("solar-system"),
     response_text="Solar system ready",
 )
 
