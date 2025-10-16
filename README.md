@@ -54,7 +54,7 @@ pnpm run build
 
 This command runs `build-all.mts`, producing versioned `.html`, `.js`, and `.css` files inside `assets/`. Each widget is wrapped with the CSS it needs so you can host the bundles directly or ship them with your own server.
 
-To iterate locally, you can also launch the Vite dev server:
+To iterate on your components locally, you can also launch the Vite dev server:
 
 ```bash
 pnpm run dev
@@ -130,11 +130,22 @@ You can add your app to the conversation context by selecting it in the "More" o
 
 You can then invoke tools by asking something related. For example, for the Pizzaz app, you can ask "What are the best pizzas in town?".
 
-
 ## Next steps
 
 - Customize the widget data: edit the handlers in `pizzaz_server_node/src`, `pizzaz_server_python/main.py`, or the solar system server to fetch data from your systems.
 - Create your own components and add them to the gallery: drop new entries into `src/` and they will be picked up automatically by the build script.
+
+### Deploy your MCP server
+
+You can use the cloud environment of your choice to deploy your MCP server.
+
+Include this in the environment variables:
+
+```
+BASE_URL=https://your-server.com
+```
+
+This will be used to generate the HTML for the widgets so that they can serve static assets from this hosted url.
 
 ## Contributing
 
