@@ -86,16 +86,7 @@ widgets: List[PizzazWidget] = [
         invoked="Served a fresh list",
         html=_load_widget_html("pizzaz-list"),
         response_text="Rendered a pizza list!",
-    ),
-    PizzazWidget(
-        identifier="pizza-video",
-        title="Show Pizza Video",
-        template_uri="ui://widget/pizza-video.html",
-        invoking="Hand-tossing a video",
-        invoked="Served a fresh video",
-        html=_load_widget_html("pizzaz-video"),
-        response_text="Rendered a pizza video!",
-    ),
+    )
 ]
 
 
