@@ -185,6 +185,5 @@ for (const name of builtNames) {
 `;
   fs.writeFileSync(hashedHtmlPath, html, { encoding: "utf8" });
   fs.writeFileSync(liveHtmlPath, html, { encoding: "utf8" });
-  console.log(`${hashedHtmlPath} (generated live HTML)`);
-  console.log(`${liveHtmlPath} (generated live HTML)`);
+  console.log(`${liveHtmlPath}`);
 }

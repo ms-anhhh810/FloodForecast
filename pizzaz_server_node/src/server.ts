@@ -153,6 +153,12 @@ const tools: Tool[] = widgets.map((widget) => ({
   inputSchema: toolInputSchema,
   title: widget.title,
   _meta: widgetMeta(widget),
+  // To disable the approval prompt for the widgets
+  annotations: {
+    destructiveHint: false,
+    openWorldHint: false,
+    readOnlyHint: true,
+  },
 }));
 
 const resources: Resource[] = widgets.map((widget) => ({

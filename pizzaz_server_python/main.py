@@ -138,12 +138,7 @@ def _tool_meta(widget: PizzazWidget) -> Dict[str, Any]:
         "openai/toolInvocation/invoking": widget.invoking,
         "openai/toolInvocation/invoked": widget.invoked,
         "openai/widgetAccessible": True,
-        "openai/resultCanProduceWidget": True,
-        "annotations": {
-          "destructiveHint": False,
-          "openWorldHint": False,
-          "readOnlyHint": True,
-        }
+        "openai/resultCanProduceWidget": True
     }
 
 
@@ -168,6 +163,12 @@ async def _list_tools() -> List[types.Tool]:
             description=widget.title,
             inputSchema=deepcopy(TOOL_INPUT_SCHEMA),
             _meta=_tool_meta(widget),
+            # To disable the approval prompt for the tools
+            annotations={
+                "destructiveHint": False,
+                "openWorldHint": False,
+                "readOnlyHint": True,
+            },
         )
         for widget in widgets
     ]
@@ -276,7 +277,7 @@ async def _call_tool_request(req: types.CallToolRequest) -> types.ServerResult:
                 )
             ],
             structuredContent={"pizzaTopping": topping},
-            _meta=meta,
+            _meta=meta
         )
     )
 
