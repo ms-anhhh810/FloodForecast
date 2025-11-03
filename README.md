@@ -23,9 +23,11 @@ The MCP servers in this demo highlight how each tool can light up widgets by com
 
 - `src/` – Source for each widget example.
 - `assets/` – Generated HTML, JS, and CSS bundles after running the build step.
+- `sample-data/` – Shared catalog data used by the widgets and MCP servers.
 - `pizzaz_server_node/` – MCP server implemented with the official TypeScript SDK.
 - `pizzaz_server_python/` – Python MCP server that returns the Pizzaz widgets.
 - `solar-system_server_python/` – Python MCP server for the 3D solar system widget.
+- `ecommerce_server_python/` – Python server that powers the ecommerce carousel sample.
 - `build-all.mts` – Vite build orchestrator that produces hashed bundles for every widget entrypoint.
 
 ## Prerequisites
@@ -64,7 +66,7 @@ pnpm run dev
 
 ## Serve the static assets
 
-If you want to preview the generated bundles without the MCP servers, start the static file server after running a build:
+All of the MCP servers expect the bundled HTML, JS, and CSS to be served from the local static file server. After every build, start the server before launching any MCP processes:
 
 ```bash
 pnpm run serve
@@ -72,14 +74,14 @@ pnpm run serve
 
 The assets are exposed at [`http://localhost:4444`](http://localhost:4444) with CORS enabled so that local tooling (including MCP inspectors) can fetch them.
 
+> **Note:** The Python Pizzaz server caches widget HTML with `functools.lru_cache`. If you rebuild or manually edit files in `assets/`, restart the MCP server so it picks up the updated markup.
+
 ## Run the MCP servers
 
 The repository ships several demo MCP servers that highlight different widget bundles:
 
 - **Pizzaz (Node & Python)** – pizza-inspired collection of tools and components
 - **Solar system (Python)** – 3D solar system viewer
-
-Every tool response includes plain text content, structured JSON, and `_meta.openai/outputTemplate` metadata so the Apps SDK can hydrate the matching widget.
 
 ### Pizzaz Node server
 
@@ -106,6 +108,7 @@ pip install -r solar-system_server_python/requirements.txt
 uvicorn solar-system_server_python.main:app --port 8000
 ```
 
+Run `pnpm run build` in the repository root before starting the server so it can serve `assets/ecommerce.html`.
 You can reuse the same virtual environment for all Python servers—install the dependencies once and run whichever entry point you need.
 
 ## Testing in ChatGPT
