@@ -146,16 +146,11 @@ def _tool_meta(widget: PizzazWidget) -> Dict[str, Any]:
     }
 
 
-def _embedded_widget_resource(widget: PizzazWidget) -> types.EmbeddedResource:
-    return types.EmbeddedResource(
-        type="resource",
-        resource=types.TextResourceContents(
-            uri=widget.template_uri,
-            mimeType=MIME_TYPE,
-            text=widget.html,
-            title=widget.title,
-        ),
-    )
+def _tool_invocation_meta(widget: PizzazWidget) -> Dict[str, Any]:
+    return {
+        "openai/toolInvocation/invoking": widget.invoking,
+        "openai/toolInvocation/invoked": widget.invoked,
+    }
 
 
 @mcp._mcp_server.list_tools()
@@ -262,15 +257,7 @@ async def _call_tool_request(req: types.CallToolRequest) -> types.ServerResult:
         )
 
     topping = payload.pizza_topping
-    widget_resource = _embedded_widget_resource(widget)
-    meta: Dict[str, Any] = {
-        "openai.com/widget": widget_resource.model_dump(mode="json"),
-        "openai/outputTemplate": widget.template_uri,
-        "openai/toolInvocation/invoking": widget.invoking,
-        "openai/toolInvocation/invoked": widget.invoked,
-        "openai/widgetAccessible": True,
-        "openai/resultCanProduceWidget": True,
-    }
+    meta = _tool_invocation_meta(widget)
 
     return types.ServerResult(
         types.CallToolResult(

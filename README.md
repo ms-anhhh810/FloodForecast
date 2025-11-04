@@ -64,7 +64,7 @@ pnpm run dev
 
 ## Serve the static assets
 
-If you want to preview the generated bundles without the MCP servers, start the static file server after running a build:
+All of the MCP servers expect the bundled HTML, JS, and CSS to be served from the local static file server. After every build, start the server before launching any MCP processes:
 
 ```bash
 pnpm run serve
@@ -72,14 +72,14 @@ pnpm run serve
 
 The assets are exposed at [`http://localhost:4444`](http://localhost:4444) with CORS enabled so that local tooling (including MCP inspectors) can fetch them.
 
+> **Note:** The Python Pizzaz server caches widget HTML with `functools.lru_cache`. If you rebuild or manually edit files in `assets/`, restart the MCP server so it picks up the updated markup.
+
 ## Run the MCP servers
 
 The repository ships several demo MCP servers that highlight different widget bundles:
 
 - **Pizzaz (Node & Python)** – pizza-inspired collection of tools and components
 - **Solar system (Python)** – 3D solar system viewer
-
-Every tool response includes plain text content, structured JSON, and `_meta.openai/outputTemplate` metadata so the Apps SDK can hydrate the matching widget.
 
 ### Pizzaz Node server
 

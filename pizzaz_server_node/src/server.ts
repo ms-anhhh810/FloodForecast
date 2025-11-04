@@ -74,13 +74,20 @@ function readWidgetHtml(componentName: string): string {
   return htmlContents;
 }
 
-function widgetMeta(widget: PizzazWidget) {
+function widgetDescriptorMeta(widget: PizzazWidget) {
   return {
     "openai/outputTemplate": widget.templateUri,
     "openai/toolInvocation/invoking": widget.invoking,
     "openai/toolInvocation/invoked": widget.invoked,
     "openai/widgetAccessible": true,
     "openai/resultCanProduceWidget": true,
+  } as const;
+}
+
+function widgetInvocationMeta(widget: PizzazWidget) {
+  return {
+    "openai/toolInvocation/invoking": widget.invoking,
+    "openai/toolInvocation/invoked": widget.invoked,
   } as const;
 }
 
@@ -152,7 +159,7 @@ const tools: Tool[] = widgets.map((widget) => ({
   description: widget.title,
   inputSchema: toolInputSchema,
   title: widget.title,
-  _meta: widgetMeta(widget),
+  _meta: widgetDescriptorMeta(widget),
   // To disable the approval prompt for the widgets
   annotations: {
     destructiveHint: false,
@@ -166,7 +173,7 @@ const resources: Resource[] = widgets.map((widget) => ({
   name: widget.title,
   description: `${widget.title} widget markup`,
   mimeType: "text/html+skybridge",
-  _meta: widgetMeta(widget),
+  _meta: widgetDescriptorMeta(widget),
 }));
 
 const resourceTemplates: ResourceTemplate[] = widgets.map((widget) => ({
@@ -174,7 +181,7 @@ const resourceTemplates: ResourceTemplate[] = widgets.map((widget) => ({
   name: widget.title,
   description: `${widget.title} widget markup`,
   mimeType: "text/html+skybridge",
-  _meta: widgetMeta(widget),
+  _meta: widgetDescriptorMeta(widget),
 }));
 
 function createPizzazServer(): Server {
@@ -213,7 +220,7 @@ function createPizzazServer(): Server {
             uri: widget.templateUri,
             mimeType: "text/html+skybridge",
             text: widget.html,
-            _meta: widgetMeta(widget),
+            _meta: widgetDescriptorMeta(widget),
           },
         ],
       };
@@ -255,7 +262,7 @@ function createPizzazServer(): Server {
         structuredContent: {
           pizzaTopping: args.pizzaTopping,
         },
-        _meta: widgetMeta(widget),
+        _meta: widgetInvocationMeta(widget),
       };
     }
   );
