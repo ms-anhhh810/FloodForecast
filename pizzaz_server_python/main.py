@@ -87,6 +87,15 @@ widgets: List[PizzazWidget] = [
         html=_load_widget_html("pizzaz-list"),
         response_text="Rendered a pizza list!",
     ),
+    PizzazWidget(
+        identifier="pizza-shop",
+        title="Open Pizzaz Shop",
+        template_uri="ui://widget/pizza-shop.html",
+        invoking="Opening the shop",
+        invoked="Shop opened",
+        html=_load_widget_html("pizzaz-shop"),
+        response_text="Rendered the Pizzaz shop!",
+    ),
 ]
 
 
