@@ -22,7 +22,6 @@ const targets: string[] = [
   "pizzaz-list",
   "pizzaz-albums",
   "pizzaz-shop",
-  "ecommerce",
 ];
 const builtNames: string[] = [];
 
