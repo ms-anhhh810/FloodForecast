@@ -5,14 +5,14 @@
 This repository showcases example UI components to be used with the Apps SDK, as well as example MCP servers that expose a collection of components as tools.
 It is meant to be used as a starting point and source of inspiration to build your own apps for ChatGPT.
 
-*Note: If you are on Chrome and have recently updated to version 142, you will need to disable the [`local-network-access` flag](https://developer.chrome.com/release-notes/142#local_network_access_restrictions) to see the widget UI.
+Note: If you are on Chrome and have recently updated to version 142, you will need to disable the [`local-network-access` flag](https://developer.chrome.com/release-notes/142#local_network_access_restrictions) to see the widget UI.
 
 How to disable it:
 
 1. Go to chrome://flags/
 2. Find #local-network-access-check
 3. Set it to Disabled
-*
+
 
 ## MCP + Apps SDK overview
 
