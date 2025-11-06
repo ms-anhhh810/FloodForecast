@@ -128,6 +128,15 @@ const widgets: PizzazWidget[] = [
     html: readWidgetHtml("pizzaz-list"),
     responseText: "Rendered a pizza list!",
   },
+  {
+    id: "pizza-shop",
+    title: "Open Pizzaz Shop",
+    templateUri: "ui://widget/pizza-shop.html",
+    invoking: "Opening the shop",
+    invoked: "Shop opened",
+    html: readWidgetHtml("pizzaz-shop"),
+    responseText: "Rendered the Pizzaz shop!",
+  },
 ];
 
 const widgetsById = new Map<string, PizzazWidget>();

@@ -21,6 +21,7 @@ const targets: string[] = [
   "pizzaz-carousel",
   "pizzaz-list",
   "pizzaz-albums",
+  "pizzaz-shop",
 ];
 const builtNames: string[] = [];
 
