@@ -13,6 +13,7 @@ How to disable it:
 2. Find #local-network-access-check
 3. Set it to Disabled
 
+⚠️ **Note 🚨 Make sure to restart Chrome after changing this flag for the update to take effect.**
 
 ## MCP + Apps SDK overview
 
