@@ -90,6 +90,7 @@ The repository ships several demo MCP servers that highlight different widget bu
 
 - **Pizzaz (Node & Python)** – pizza-inspired collection of tools and components
 - **Solar system (Python)** – 3D solar system viewer
+- **Flood Route (Python)** – flood-aware routing with weather and elevation data
 
 ### Pizzaz Node server
 
@@ -114,6 +115,15 @@ python -m venv .venv
 source .venv/bin/activate
 pip install -r solar-system_server_python/requirements.txt
 uvicorn solar-system_server_python.main:app --port 8000
+```
+
+### Flood Route Python server
+
+```bash
+python -m venv .venv
+source .venv/bin/activate
+pip install -r flood_route_server_python/requirements.txt
+uvicorn flood_route_server_python.main:app --port 8000
 ```
 
 You can reuse the same virtual environment for all Python servers—install the dependencies once and run whichever entry point you need.
