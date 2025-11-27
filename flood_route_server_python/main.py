@@ -141,7 +141,7 @@ async def geocode_location(location_name: str) -> Optional[Tuple[float, float]]:
             query = f"{query}, Thành phố Hồ Chí Minh"
         
         # Get API key from environment or use default
-        api_key = os.getenv("SEARCHAPI_KEY", "Uwf5gn1N1TL6ghTquYLCGgZm")
+        api_key = os.getenv("SEARCHAPI_KEY", "")
         
         async with httpx.AsyncClient() as client:
             url = "https://www.searchapi.io/api/v1/search"
