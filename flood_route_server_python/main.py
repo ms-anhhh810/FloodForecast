@@ -819,7 +819,6 @@ async def calculate_route_flood_risks(
     
     route_segments = []
     current_distance = 0.0  # Track cumulative distance in km
-    segment_start_idx = 0
     segment_coords_accumulator = [route_coords[0]]  # Accumulate coordinates for current 1km segment
     
     # Process route point by point, creating 1km segments
@@ -888,9 +887,8 @@ async def calculate_route_flood_risks(
                 "longitude": mid_lng,
             })
             
-            # Reset for next 1km segment
-            current_distance = 0.0
-            segment_start_idx = i
+            # Reset for next 1km segment, keeping the remainder distance
+            current_distance = current_distance - 1.0  # Keep remainder (e.g., if 1.2km, keep 0.2km)
             segment_coords_accumulator = [curr_point]  # Start new segment from current point
     
     # Process remaining segment if any (less than 1km at the end)
