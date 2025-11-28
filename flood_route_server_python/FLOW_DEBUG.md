@@ -162,3 +162,4 @@ Arguments: {
 4. **Giảm threshold trong fallback**: Phản ánh thực tế hơn
 5. **Thêm validation**: Kiểm tra nếu tất cả segments đều "Low" → cảnh báo
 
+

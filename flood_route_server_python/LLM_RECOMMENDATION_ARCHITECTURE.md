@@ -162,3 +162,4 @@ LLM (ChatGPT) tự động:
 3. Có thể thêm historical data nếu cần
 4. Có thể thêm alternative routes nếu có nguy cơ cao
 
+

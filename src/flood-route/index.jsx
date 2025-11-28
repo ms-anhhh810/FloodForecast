@@ -318,73 +318,30 @@ export default function App() {
         )}
 
         {/* Info Panel */}
-        {(isFlooded || routeInfo || weatherInfo) && (
-          <div className="absolute top-4 left-4 z-30 bg-white rounded-lg shadow-lg p-4 max-w-sm pointer-events-auto">
+        {(isFlooded || routeInfo) && (
+          <div className="absolute top-4 left-4 z-30 bg-white/95 backdrop-blur-sm rounded-xl shadow-xl p-5 max-w-sm pointer-events-auto border border-gray-100">
             {isFlooded && (
-              <div className="flex items-center gap-2 text-red-600 mb-3">
+              <div className="flex items-center gap-2 text-red-600 mb-4 pb-4 border-b border-red-100">
                 <AlertTriangle className="h-5 w-5" />
                 <span className="font-semibold">Có nguy cơ ngập lụt!</span>
               </div>
             )}
-            {weatherInfo && (
-              <div className="space-y-2 text-sm mb-3 border-b pb-3">
-                <div className="font-medium text-gray-800">Thông tin thời tiết:</div>
-                <div className="text-gray-600">
-                  Lượng mưa hiện tại: <span className="font-semibold">{weatherInfo.currentPrecipitation}mm</span>
-                </div>
-                <div className="text-gray-600">
-                  Lượng mưa tối đa: <span className="font-semibold">{weatherInfo.maxPrecipitation}mm</span>
-                </div>
-                {weatherInfo.rainStopETA && (
-                  <div className="text-blue-600">
-                    Mưa dự kiến tạnh: <span className="font-semibold">{weatherInfo.rainStopETA}</span>
-                  </div>
-                )}
-              </div>
-            )}
             {routeInfo && (
-              <div className="space-y-1 text-sm mb-3">
-                <div className="flex items-center gap-2">
+              <div className="space-y-2 text-sm">
+                <div className="flex items-center gap-2 mb-2">
                   <Navigation className="h-4 w-4 text-blue-600" />
-                  <span className="font-medium">Thông tin tuyến đường:</span>
+                  <span className="font-semibold text-gray-800">Thông tin tuyến đường:</span>
                 </div>
                 {routeInfo.distance && (
-                  <div className="text-gray-600">
-                    Khoảng cách: {routeInfo.distance}
+                  <div className="text-gray-700 pl-6">
+                    <span className="text-gray-500">Khoảng cách:</span> <span className="font-medium">{routeInfo.distance}</span>
                   </div>
                 )}
                 {routeInfo.duration && (
-                  <div className="text-gray-600">
-                    Thời gian: {routeInfo.duration}
+                  <div className="text-gray-700 pl-6">
+                    <span className="text-gray-500">Thời gian:</span> <span className="font-medium">{routeInfo.duration}</span>
                   </div>
                 )}
-              </div>
-            )}
-            {routeSegments && routeSegments.length > 0 && (
-              <div className="mt-3 pt-3 border-t text-xs">
-                <div className="font-medium text-gray-800 mb-2">Mức độ nguy cơ:</div>
-                <div className="flex flex-wrap gap-2">
-                  {["High", "Medium High", "Medium", "Medium Low", "Low"].map((level) => {
-                    const colorMap = {
-                      "High": "#dc2626",
-                      "Medium High": "#f97316",
-                      "Medium": "#eab308",
-                      "Medium Low": "#3b82f6",
-                      "Low": "#60a5fa",
-                    };
-                    const hasLevel = routeSegments.some(s => s.riskLevel === level);
-                    if (!hasLevel) return null;
-                    return (
-                      <div key={level} className="flex items-center gap-1">
-                        <div 
-                          className="w-3 h-3 rounded-full" 
-                          style={{ backgroundColor: colorMap[level] }}
-                        ></div>
-                        <span className="text-gray-600">{level}</span>
-                      </div>
-                    );
-                  })}
-                </div>
               </div>
             )}
           </div>
@@ -403,43 +360,24 @@ export default function App() {
         </div>
 
         {/* Legend */}
-        <div className="absolute bottom-4 left-4 z-30 bg-white rounded-lg shadow-lg p-3 text-xs pointer-events-auto">
-          <div className="space-y-1">
-            <div className="flex items-center gap-2">
-              <div className="w-4 h-4 bg-green-500 rounded-full"></div>
-              <span>Điểm xuất phát</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="w-4 h-4 bg-red-500 rounded-full"></div>
-              <span>Điểm đến</span>
-            </div>
-            <div className="mt-2 pt-2 border-t">
-              <div className="font-medium mb-1">Mức độ nguy cơ:</div>
-              <div className="space-y-1">
-                <div className="flex items-center gap-2">
-                  <div className="w-4 h-1 bg-red-600"></div>
-                  <span>High</span>
+        {(startPoint || endPoint) && (
+          <div className="absolute bottom-4 left-4 z-30 bg-white/95 backdrop-blur-sm rounded-xl shadow-xl p-4 text-sm pointer-events-auto border border-gray-100">
+            <div className="space-y-2.5">
+              {startPoint && (
+                <div className="flex items-center gap-2.5">
+                  <div className="w-4 h-4 bg-green-500 rounded-full shadow-sm ring-2 ring-green-200"></div>
+                  <span className="text-gray-700 font-medium">Điểm xuất phát</span>
                 </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-4 h-1 bg-orange-500"></div>
-                  <span>Medium High</span>
+              )}
+              {endPoint && (
+                <div className="flex items-center gap-2.5">
+                  <div className="w-4 h-4 bg-red-500 rounded-full shadow-sm ring-2 ring-red-200"></div>
+                  <span className="text-gray-700 font-medium">Điểm đến</span>
                 </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-4 h-1 bg-yellow-500"></div>
-                  <span>Medium</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-4 h-1 bg-blue-500"></div>
-                  <span>Medium Low</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-4 h-1 bg-blue-300"></div>
-                  <span>Low</span>
-                </div>
-              </div>
+              )}
             </div>
           </div>
-        </div>
+        )}
       </div>
     </>
   );
